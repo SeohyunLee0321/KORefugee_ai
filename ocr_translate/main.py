@@ -1,12 +1,13 @@
+import uvicorn
 from fastapi import FastAPI
 # http://127.0.0.1:8000/docs
-
-app = FastAPI()
 
 from fastapi import FastAPI, UploadFile, File
 
 app = FastAPI()
 
+if __name__ == '__main__':
+    uvicorn.run(app, host='127.0.0.1', port=7000)
 
 @app.post("/OCR/")
 async def image_ocr(target_lang, file: UploadFile = File(...)):
