@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/ocr translate.iml" filepath="$PROJECT_DIR$/.idea/ocr translate.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/translateV3_fastapi.iml" filepath="$PROJECT_DIR$/.idea/translateV3_fastapi.iml" />
     </modules>
   </component>
 </project>
