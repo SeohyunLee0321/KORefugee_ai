@@ -6,6 +6,9 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
 
 @app.get("/translate/{original_file_path:path}_/{download_file_path:path}/{trans_target_lang}")
 async def translate(original_file_path: str, download_file_path: str, trans_target_lang: str):
