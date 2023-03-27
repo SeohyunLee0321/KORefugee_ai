@@ -11,3 +11,5 @@ Accept: application/json
 ###
 GET http://127.0.0.1:8000/translate/C:/Users/zrowx/OneDrive/바탕 화면/image.jpg_/C:/Users/zrowx/OneDrive/바탕 화면//ja
 Accept: application/json
+
+# http://34.64.122.97:8000/translate/image/ja

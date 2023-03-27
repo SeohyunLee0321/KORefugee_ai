@@ -1,5 +1,6 @@
 import io
 import os
+
 from google.cloud import storage
 from PIL import Image
 from fastapi import FastAPI
@@ -10,13 +11,22 @@ app = FastAPI()
 async def root():
     return {"message": "Hello World"}
 
-@app.get("/translate/{original_file_path:path}_/{download_file_path:path}/{trans_target_lang}")
-async def translate(original_file_path: str, download_file_path: str, trans_target_lang: str):
-    upload_file(original_file_path)
-    translate_v3(original_file_path, trans_target_lang)
-    download_file(original_file_path, download_file_path, trans_target_lang)
+
+#@app.get("/translate/{original_file_path:path}_/{download_file_path:path}/{trans_target_lang}")
+#async def translate(original_file_path: str, download_file_path: str, trans_target_lang: str):
+#    upload_file(original_file_path)
+#    translate_v3(original_file_path, trans_target_lang)
+#    download_file(original_file_path, download_file_path, trans_target_lang)
+#
+#    return {"all done!"}
+
+
+@app.get("/translate/{original_file_name}/{target_lang}")
+async def translate(original_file_name: str, trans_target_lang: str):
+    translate_v3(original_file_name, trans_target_lang)
 
     return {"all done!"}
+
 
 from google.cloud import translate_v3beta1 as translate
 
@@ -58,12 +68,12 @@ def upload_file(original_file_path: str):
         blob.upload_from_filename(original_file_path)
 
 
-def translate_v3(original_file_path: str, trans_target_lang: str):
-    last_slash = original_file_path.rfind("/")
-    last_dot = original_file_path.rfind(".")
+def translate_v3(file_name: str, trans_target_lang: str):
+    #last_slash = original_file_path.rfind("/")
+    #last_dot = original_file_path.rfind(".")
 
     # 파일 형식, 파일명만 parsing
-    file_name = original_file_path[last_slash + 1: last_dot]
+    #file_name = original_file_path[last_slash + 1: last_dot]
 
     blob = bucket.blob('original/' + file_name + '.pdf')
     blob_target = bucket.blob('translated/' + file_name + '_' + trans_target_lang + '.pdf')
