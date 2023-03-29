@@ -4,28 +4,24 @@ import os
 from google.cloud import storage
 from PIL import Image
 from fastapi import FastAPI
+import urllib.request
 
 app = FastAPI()
+
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
 
-#@app.get("/translate/{original_file_path:path}_/{download_file_path:path}/{trans_target_lang}")
-#async def translate(original_file_path: str, download_file_path: str, trans_target_lang: str):
-#    upload_file(original_file_path)
-#    translate_v3(original_file_path, trans_target_lang)
-#    download_file(original_file_path, download_file_path, trans_target_lang)
-#
-#    return {"all done!"}
+@app.get("/translate/{original_file_path:path}/{target_lang}")
+async def translate(original_file_path: str, target_lang: str):
+    last_slash = original_file_path.rfind("/")
+    last_dot = original_file_path.rfind(".")
+    file_name = original_file_path[last_slash + 1: last_dot]
 
-
-@app.get("/translate/{original_file_name}/{target_lang}")
-async def translate(original_file_name: str, trans_target_lang: str):
-    translate_v3(original_file_name, trans_target_lang)
-
-    return {"all done!"}
+    convert_file(file_name, original_file_path)
+    return translate_v3(file_name, target_lang)
 
 
 from google.cloud import translate_v3beta1 as translate
@@ -43,19 +39,18 @@ bucket_name = 'korefugee_trans'
 bucket = storage_client.bucket(bucket_name)
 
 
-def upload_file(original_file_path: str):
-    last_slash = original_file_path.rfind("/")
+def convert_file(original_file_name: str, original_file_path: str):
+
     last_dot = original_file_path.rfind(".")
-
-    # 파일 형식, 파일명만 parsing
     file_type = original_file_path[last_dot + 1:]
-    file_name = original_file_path[last_slash + 1: last_dot]
 
-    blob_name = 'original/' + file_name + '.pdf'
+    blob_name = 'original/' + original_file_name + '.pdf'
     blob = bucket.blob(blob_name)
 
+    urllib.request.urlretrieve(original_file_path, "test.jpg")
+
     if file_type == "jpeg" or file_type == "jpg":
-        img = Image.open(original_file_path)
+        img = Image.open("test.jpg")
 
         byte_arr = io.BytesIO()
         img.save(byte_arr, format="pdf")
@@ -64,17 +59,8 @@ def upload_file(original_file_path: str):
         f.write(byte_arr.getvalue())
         f.close()
 
-    else:
-        blob.upload_from_filename(original_file_path)
-
 
 def translate_v3(file_name: str, trans_target_lang: str):
-    #last_slash = original_file_path.rfind("/")
-    #last_dot = original_file_path.rfind(".")
-
-    # 파일 형식, 파일명만 parsing
-    #file_name = original_file_path[last_slash + 1: last_dot]
-
     blob = bucket.blob('original/' + file_name + '.pdf')
     blob_target = bucket.blob('translated/' + file_name + '_' + trans_target_lang + '.pdf')
 
@@ -98,16 +84,4 @@ def translate_v3(file_name: str, trans_target_lang: str):
     f.write(response.document_translation.byte_stream_outputs[0])
     f.close()
 
-
-def download_file(original_file_path: str, download_file_path: str, trans_target_lang: str):
-    last_slash = original_file_path.rfind("/")
-    last_dot = original_file_path.rfind(".")
-
-    # 파일 형식, 파일명만 parsing
-    file_name = original_file_path[last_slash + 1: last_dot] + "_" + trans_target_lang
-    blob_name = 'translated/' + file_name + '.pdf'
-
-    file_path = download_file_path + file_name + '.pdf'
-
-    blob = bucket.blob(blob_name)
-    blob.download_to_filename(file_path)
+    return blob.public_url
