@@ -84,7 +84,4 @@ def translate_v3(file_name: str, trans_target_lang: str):
     f.write(response.document_translation.byte_stream_outputs[0])
     f.close()
 
-    url = blob_target.public_url
-    url_new = url.replace('s', '', 1)
-
-    return url_new
+    return blob_target.public_url
